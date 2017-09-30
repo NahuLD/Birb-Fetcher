@@ -27,7 +27,14 @@ public class GetImageById
 		if (!directory.isDirectory()) {
 			return null;
 		}
-		File id = new File(directory, request.params(":id"));
+		String filename;
+		{
+			filename = request.params(":id");
+			if (filename.lastIndexOf('/') != -1) {
+				filename = filename.substring(filename.lastIndexOf('/'));
+			}
+		}
+		File id = new File(directory, filename);
 		ByteOutputStream stream = new ByteOutputStream();
 		try(FileInputStream reader = new FileInputStream(id)) {
 			byte[] buffer = new byte[1024];
