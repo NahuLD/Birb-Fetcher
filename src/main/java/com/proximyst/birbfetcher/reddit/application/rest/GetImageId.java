@@ -12,6 +12,7 @@ public class GetImageId implements Route {
 
 	@Override
 	public Object handle(Request request, Response response) {
+		response.header("Content-Type", "text/plain; charset=utf-8");
 		return pool.poll().getName();
 	}
 }

@@ -25,7 +25,7 @@ public enum Utilities {
 
 	public static Optional<byte[]> readImage(File file) {
 		ByteOutputStream stream = new ByteOutputStream();
-		try(FileInputStream reader = new FileInputStream(file)) {
+		try (FileInputStream reader = new FileInputStream(file)) {
 			byte[] buffer = new byte[1024];
 			int length;
 			while ((length = reader.read(buffer)) > 0) {
@@ -37,5 +37,34 @@ public enum Utilities {
 			return Optional.empty();
 		}
 		return Optional.ofNullable(stream.getBytes());
+	}
+
+	public static String getContentType(File file) {
+		return getContentType(file.getName().substring(file.getName().lastIndexOf('.')));
+	}
+
+	public static String getContentType(String name) {
+		switch (name.toLowerCase()) {
+			case "png":
+				return "image/png";
+			case "jpg":
+			case "jpeg":
+				return "image/jpeg";
+			case "gif":
+			case "gifv":
+				return "image/gif";
+			case "svg":
+				return "image/svg+xml";
+			case "bmp":
+				return "image/bmp";
+			case "webp":
+				return "image/webp";
+			case "webm":
+			case "mp4":
+			case "mkv":
+				return "video/webm";
+			default:
+				throw new IllegalArgumentException("Unsupported type!");
+		}
 	}
 }

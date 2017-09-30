@@ -34,6 +34,7 @@ public class GetImageById
 		}
 		File id = new File(directory, filename);
 		final Optional<byte[]> bytes = Utilities.readImage(id);
+		bytes.ifPresent(b -> response.header("Content-Type", Utilities.getContentType(id) + "; charset=utf-8"));
 		return bytes.orElse(null);
 	}
 }

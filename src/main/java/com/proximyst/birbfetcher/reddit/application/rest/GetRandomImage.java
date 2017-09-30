@@ -7,12 +7,19 @@ import spark.Request;
 import spark.Response;
 import spark.Route;
 
+import java.io.File;
+
 @RequiredArgsConstructor
-public class GetRandomImage implements Route {
+public class GetRandomImage
+			implements Route {
 	private final FilePool pool;
 
 	@Override
 	public Object handle(Request request, Response response) {
-		return Utilities.readImage(pool.poll()).orElse(null);
+		File file = pool.poll();
+		if (file != null) {
+			response.header("Content-Type", Utilities.getContentType(file) + "; charset=utf-8");
+		}
+		return Utilities.readImage(file).orElse(null);
 	}
 }
