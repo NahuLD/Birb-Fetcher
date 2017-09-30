@@ -20,10 +20,9 @@ public class EnumStringConverterFactory
 				if (annotation != null) {
 					return annotation.value();
 				}
-				return null;
-			} catch (NoSuchFieldException e) {
-				return ((Enum) in).name();
+			} catch (NoSuchFieldException ignored) {
 			}
+			return ((Enum) in).name();
 		};
 	}
 }

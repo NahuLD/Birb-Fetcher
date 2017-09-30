@@ -1,6 +1,8 @@
 package com.proximyst.birbfetcher.reddit.api;
 
+import com.google.gson.annotations.SerializedName;
+
 public enum Sort {
-	NEW,
-	RISING,
+	@SerializedName("new") NEW,
+	@SerializedName("rising") RISING,
 }
