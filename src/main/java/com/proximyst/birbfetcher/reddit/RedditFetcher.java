@@ -15,6 +15,7 @@ import com.proximyst.birbfetcher.reddit.threading.FetchThread;
 import com.proximyst.birbfetcher.reddit.threading.PoolingThread;
 import lombok.Getter;
 import retrofit2.Retrofit;
+import spark.Route;
 import spark.Spark;
 
 import java.io.File;
@@ -92,12 +93,13 @@ public class RedditFetcher {
 		Spark.port(configuration.getPort());
 
 		println("Setting Spark paths.");
+		final Route randomImage = new GetRandomImage(filePool);
 		Spark.path("/id", () -> {
 			Spark.get("/text", new GetImageId(filePool));
 			Spark.get("/json", new GetImageJsonId(filePool));
 		});
 		Spark.path("/img", () -> {
-			Spark.get("/random", new GetRandomImage(filePool));
+			Spark.get("/random", randomImage);
 			Spark.get("/:id", new GetImageById(configuration, gson.toJson(
 						new HashMap<String, Object>() {{
 							put("error", 400);
@@ -105,6 +107,10 @@ public class RedditFetcher {
 							put("endpoint", "/img/:id");
 						}}
 			)));
+		});
+		Spark.path("/", () -> {
+			Spark.get("/robots.txt", (req, resp) -> "User-agent: *\nAllow: /*");
+			Spark.notFound(randomImage);
 		});
 
 		println("Finished instantiating core elements.");
