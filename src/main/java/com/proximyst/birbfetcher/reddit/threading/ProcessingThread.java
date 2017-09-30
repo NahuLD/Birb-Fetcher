@@ -116,7 +116,11 @@ public class ProcessingThread
 							try (FileOutputStream stream = new FileOutputStream(entry.getValue().getB())) {
 								stream.write(entry.getValue().getA());
 							} catch (IOException ignored) {
-								entry.getValue().getB().delete(); // Corrupt file after this stage.
+								try {
+									entry.getValue().getB().delete(); // Corrupt file after this stage.
+								} catch (SecurityException ex) {
+									ex.printStackTrace(); // Prod should have permissions setup correctly..
+								}
 							}
 						});
 		}
