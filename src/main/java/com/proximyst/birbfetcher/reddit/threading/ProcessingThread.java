@@ -65,6 +65,8 @@ public class ProcessingThread
 						try {
 							URL url = new URL(in);
 							HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+							connection.setConnectTimeout(3000);
+							connection.setReadTimeout(3000);
 							connection.connect(); // Force connection.
 							try (InputStream read = connection.getInputStream()) {
 								byte[] buffer = new byte[1024];
@@ -78,7 +80,7 @@ public class ProcessingThread
 						}
 						return outputStream.toByteArray();
 					})
-//									.filter(Objects::nonNull) - Doing it in the next map is more efficient.
+//					.filter(Objects::nonNull) - Doing it in the next map is more efficient.
 						.<Map.Entry<String, Pair<byte[], File>>>map(in -> {
 							if (in == null || in.length <= 0) {
 								return null;
@@ -98,6 +100,14 @@ public class ProcessingThread
 							if (file.exists()) { // Chances for duplicate signatures of which pow(62, 16) match are really low.
 								return null; // pretty safe to say it's the same image.
 							}
+							try {
+								if (!file.createNewFile()) {
+									return null;
+								}
+							} catch (IOException e) {
+								e.printStackTrace(); // Should never happen in prod, so let's see what the error is.
+								return null;
+							}
 							return new AbstractMap.SimpleImmutableEntry<>(digest, new Pair<>(in, file));
 						})
 						.filter(Objects::nonNull) // An error or duplicate occurred. Drop them.
@@ -106,6 +116,7 @@ public class ProcessingThread
 							try (FileOutputStream stream = new FileOutputStream(entry.getValue().getB())) {
 								stream.write(entry.getValue().getA());
 							} catch (IOException ignored) {
+								entry.getValue().getB().delete(); // Corrupt file after this stage.
 							}
 						});
 		}
