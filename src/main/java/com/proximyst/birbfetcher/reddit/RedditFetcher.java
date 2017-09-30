@@ -20,6 +20,7 @@ import spark.Spark;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Queue;
@@ -65,6 +66,7 @@ public class RedditFetcher {
 
 		if (configuration == null) {
 			configuration = new Configuration();
+			configuration.setSubreddits(new ArrayList<>());
 			configuration.getSubreddits().addAll(Arrays.asList("parrots", "birbs", "birb"));
 			configuration.setThreads(16); // TODO: Find out if it's too much or too little. I think 8 or 4 might be enough.
 			configuration.setBirbDirectory('.' + File.separatorChar + "birbs");
