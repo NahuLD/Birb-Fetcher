@@ -36,7 +36,10 @@ public class PoolingThread
 		File[] children = directory.listFiles();
 		if (children != null) {
 			for (int i = 0; i < (capacity - size); i++) {
-				fileQueue.add(children[ThreadLocalRandom.current().nextInt(children.length)]);
+				while (!fileQueue.add(children[ThreadLocalRandom.current().nextInt(children.length)])
+							&& (children.length >= capacity)) {
+					// wait for a file to be added.
+				}
 			}
 		}
 		try {
