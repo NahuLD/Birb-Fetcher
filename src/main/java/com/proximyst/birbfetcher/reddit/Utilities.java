@@ -1,7 +1,6 @@
 package com.proximyst.birbfetcher.reddit;
 
-import com.sun.xml.internal.messaging.saaj.util.ByteOutputStream;
-
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -24,7 +23,7 @@ public enum Utilities {
 	}
 
 	public static Optional<byte[]> readImage(File file) {
-		ByteOutputStream stream = new ByteOutputStream();
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
 		try (FileInputStream reader = new FileInputStream(file)) {
 			byte[] buffer = new byte[1024];
 			int length;
@@ -36,7 +35,7 @@ public enum Utilities {
 			e.printStackTrace();
 			return Optional.empty();
 		}
-		return Optional.ofNullable(stream.getBytes());
+		return Optional.ofNullable(stream.toByteArray());
 	}
 
 	public static String getContentType(File file) {
