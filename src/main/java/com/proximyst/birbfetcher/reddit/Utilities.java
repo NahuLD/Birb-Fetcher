@@ -37,7 +37,11 @@ public enum Utilities {
 	}
 
 	public static String getContentType(File file) {
-		return getContentType(file.getName().substring(file.getName().lastIndexOf('.')));
+		int lastIndex = file.getName().lastIndexOf('.');
+		if (lastIndex != -1) {
+			return getContentType(file.getName().substring(lastIndex));
+		}
+		return getContentType(file.getName());
 	}
 
 	public static String getContentType(String name) {

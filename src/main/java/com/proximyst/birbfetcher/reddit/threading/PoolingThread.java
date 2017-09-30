@@ -30,6 +30,7 @@ public class PoolingThread
 			Iterator<File> iter = fileQueue.iterator();
 			for (int i = 0; i < Math.ceil(size / 10); i++) {
 				iter.remove();
+				iter.next();
 			}
 		}
 		File directory = new File(config.getBirbDirectory());

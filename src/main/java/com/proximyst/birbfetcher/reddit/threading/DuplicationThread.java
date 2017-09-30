@@ -54,8 +54,20 @@ public class DuplicationThread
 				}
 			}
 			String filename = file.getName();
+			int lastIndex = filename.lastIndexOf('.');
+			if (lastIndex == -1) {
+				if (filename.endsWith("gif")) {
+					lastIndex = filename.lastIndexOf('g');
+				} else if (filename.endsWith("png")) {
+					lastIndex = filename.lastIndexOf('p');
+				} else if (filename.endsWith("svg")) {
+					lastIndex = filename.lastIndexOf('g');
+				} else if (filename.endsWith("g")) {
+					lastIndex = filename.lastIndexOf('j');
+				}
+			}
 			fileData.put(
-						builder.toString() + filename.substring(filename.lastIndexOf('.'), filename.indexOf('?')),
+						builder.toString() + '.' + (lastIndex == -1 ? "jpg" : filename.substring(lastIndex)),
 						imageBytes
 			);
 			file.delete();
