@@ -42,7 +42,7 @@ public class RedditFetcher {
 				.serializeNulls()
 				.create();
 	private final Queue<Post> posts = new LinkedBlockingQueue<>();
-	private final File configurationFile = new File('.' + File.separatorChar + "config.json");
+	private final File configurationFile = new File('.' + File.separator + "config.json");
 	private Configuration configuration = null;
 	private FilePool filePool;
 
@@ -82,6 +82,7 @@ public class RedditFetcher {
 		poolingThread.start();
 		println("Instantiating file pool.");
 		filePool = new FilePool(poolingThread);
+		// TODO: Thread for duplicates and converting incorrectly named files.
 
 		FetchThread fetcherThread = new FetchThread(this);
 		fetcherThread.setName("Fetcher");
@@ -94,6 +95,7 @@ public class RedditFetcher {
 
 		println("Setting Spark paths.");
 		final Route randomImage = new GetRandomImage(filePool);
+		// TODO: Allow SSL
 		Spark.path("/id", () -> {
 			Spark.get("/text", new GetImageId(filePool));
 			Spark.get("/json", new GetImageJsonId(filePool));

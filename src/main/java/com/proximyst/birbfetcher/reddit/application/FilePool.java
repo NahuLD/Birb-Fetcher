@@ -18,7 +18,7 @@ public class FilePool {
 				file = iterator.next();
 				iterator.remove();
 			}
-		} while (file == null);
+		} while (file == null || !file.exists()); // #exists is safety for duplicate removal.
 		return file;
 	}
 }

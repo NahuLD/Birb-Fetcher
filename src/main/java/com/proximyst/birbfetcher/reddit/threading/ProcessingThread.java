@@ -7,12 +7,12 @@ import com.proximyst.birbfetcher.reddit.api.json.Post;
 import com.proximyst.birbfetcher.reddit.api.json.PostData;
 import com.proximyst.birbfetcher.reddit.api.json.PostImage;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.*;
 import java.net.URL;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.AbstractMap;
 import java.util.Map;
 import java.util.Objects;
@@ -22,25 +22,11 @@ import static com.proximyst.birbfetcher.reddit.Utilities.println;
 @RequiredArgsConstructor
 public class ProcessingThread
 			extends Thread {
-	private static MessageDigest digest;
-
 	private final RedditFetcher fetcher;
 	private final FetchThread master;
 
-	static {
-		try {
-			digest = MessageDigest.getInstance("SHA-1");
-		} catch (NoSuchAlgorithmException ignored) {
-			digest = null; // any implementation of the JRE is required to do SHA-1, so just null and swallow.
-		}
-	}
-
 	@Override
 	public void run() {
-		if (digest == null) {
-			stopping();
-			return;
-		}
 		File directory = new File(fetcher.getConfiguration().getBirbDirectory());
 		if (!directory.isDirectory()) {
 			directory.mkdirs();
@@ -93,7 +79,7 @@ public class ProcessingThread
 							if (in == null || in.getA().length <= 0) {
 								return null;
 							}
-							byte[] sig = digest.digest(in.getA());
+							byte[] sig = getDigest().digest(in.getA());
 							StringBuilder builder = new StringBuilder();
 							for (byte digestedByte : sig) {
 								builder.append(Integer.toString(
@@ -140,5 +126,10 @@ public class ProcessingThread
 
 	private void stopping() {
 		master.getSlaves().remove(this);
+	}
+
+	@SneakyThrows
+	private MessageDigest getDigest() {
+		return MessageDigest.getInstance("SHA-1");
 	}
 }
