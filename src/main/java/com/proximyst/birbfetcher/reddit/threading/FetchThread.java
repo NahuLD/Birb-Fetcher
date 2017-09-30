@@ -7,8 +7,11 @@ import com.proximyst.birbfetcher.reddit.api.json.NewJson;
 import com.proximyst.birbfetcher.reddit.api.json.Post;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -19,6 +22,7 @@ public class FetchThread
 	private final RedditFetcher fetcher;
 	@Getter private final Queue<Post> birbPosts = new LinkedBlockingQueue<>();
 	@Getter private final Queue<ProcessingThread> slaves = new LinkedBlockingQueue<>();
+	@Getter @Setter private Map<String, String> files = new HashMap<>();
 
 	@Override
 	public void run() {

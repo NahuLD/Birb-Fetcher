@@ -8,4 +8,5 @@ import java.util.List;
 public class Configuration {
 	private List<String> subreddits;
 	private int threads;
+	private String birbDirectory;
 }

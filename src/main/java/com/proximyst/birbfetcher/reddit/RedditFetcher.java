@@ -56,6 +56,7 @@ public class RedditFetcher {
 			configuration = new Configuration();
 			configuration.getSubreddits().addAll(Arrays.asList("parrots", "birbs", "birb"));
 			configuration.setThreads(16); // TODO: Find out if it's too much or too little. I think 8 or 4 might be enough.
+			configuration.setBirbDirectory('.' + File.separatorChar + "birbs");
 		}
 
 		FetchThread fetcherThread = new FetchThread(this);
