@@ -9,4 +9,7 @@ import retrofit2.http.Query;
 public interface RedditAPI {
 	@GET("r/{subreddit}/new.json")
 	Call<ResponseBody> newPosts(@Path("subreddit") String subreddit, @Query("sort") String sorting);
+
+	@GET("r/{subreddit}/hot.json")
+	Call<ResponseBody> hotPosts(@Path("subreddit") String subreddit);
 }

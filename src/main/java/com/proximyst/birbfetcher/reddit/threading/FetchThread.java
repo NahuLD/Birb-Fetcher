@@ -37,6 +37,17 @@ public class FetchThread
 							&& newPosts.getData().getChildren() != null) {
 					newPosts.getData().getChildren().parallelStream().forEach(birbPosts::offer);
 				}
+				json = fetcher.getRedditApi()
+											.hotPosts(subreddit)
+											.clone()
+											.execute()
+											.body().string();
+				newPosts = fetcher.getGson().fromJson(json, NewJson.class);
+				// Safety in case Reddit returns null for some reason.
+				if (newPosts.getData() != null
+							&& newPosts.getData().getChildren() != null) {
+					newPosts.getData().getChildren().parallelStream().forEach(birbPosts::offer);
+				}
 			} catch (IOException e) {
 				Utilities.println("Couldn't read reddit API for subreddit \"" + subreddit + "\"!");
 				e.printStackTrace();
