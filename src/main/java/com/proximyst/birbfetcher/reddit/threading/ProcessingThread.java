@@ -28,8 +28,8 @@ public class ProcessingThread
 	static {
 		try {
 			digest = MessageDigest.getInstance("SHA-1");
-		} catch (NoSuchAlgorithmException e) {
-			digest = null;
+		} catch (NoSuchAlgorithmException ignored) {
+			digest = null; // any implementation of the JRE is required to do SHA-1, so just null and swallow.
 		}
 	}
 
