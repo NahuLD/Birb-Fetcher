@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.proximyst.birbfetcher.reddit.api.RedditAPI;
 import com.proximyst.birbfetcher.reddit.api.json.Post;
+import com.proximyst.birbfetcher.reddit.api.retrofit.EnumStringConverterFactory;
 import com.proximyst.birbfetcher.reddit.api.retrofit.SortConverterFactory;
 import com.proximyst.birbfetcher.reddit.application.Configuration;
 import com.proximyst.birbfetcher.reddit.application.FilePool;
@@ -33,6 +34,7 @@ public class RedditFetcher {
 	private final Retrofit retrofit = new Retrofit.Builder()
 				.baseUrl("https://reddit.com")
 				.addConverterFactory(new SortConverterFactory())
+				.addConverterFactory(new EnumStringConverterFactory())
 				.build();
 	private final RedditAPI redditApi = getRetrofit().create(RedditAPI.class);
 	private final Gson gson = new GsonBuilder()
