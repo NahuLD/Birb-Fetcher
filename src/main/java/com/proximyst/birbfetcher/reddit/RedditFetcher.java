@@ -11,9 +11,11 @@ import com.proximyst.birbfetcher.reddit.application.rest.GetImageById;
 import com.proximyst.birbfetcher.reddit.application.rest.GetImageId;
 import com.proximyst.birbfetcher.reddit.application.rest.GetImageJsonId;
 import com.proximyst.birbfetcher.reddit.application.rest.GetRandomImage;
+import com.proximyst.birbfetcher.reddit.threading.DuplicationThread;
 import com.proximyst.birbfetcher.reddit.threading.FetchThread;
 import com.proximyst.birbfetcher.reddit.threading.PoolingThread;
 import lombok.Getter;
+import lombok.Setter;
 import retrofit2.Retrofit;
 import spark.Route;
 import spark.Spark;
@@ -45,6 +47,7 @@ public class RedditFetcher {
 	private final File configurationFile = new File('.' + File.separator + "config.json");
 	private Configuration configuration = null;
 	private FilePool filePool;
+	@Setter private boolean doneDuplicates = false;
 
 	public static void main(String[] args) {
 		new RedditFetcher().run();
@@ -82,7 +85,10 @@ public class RedditFetcher {
 		poolingThread.start();
 		println("Instantiating file pool.");
 		filePool = new FilePool(poolingThread);
-		// TODO: Thread for duplicates and converting incorrectly named files.
+		println("Instantiating dupe thread.");
+		DuplicationThread dupeThread = new DuplicationThread(this);
+		println("Starting dupe thread.");
+		dupeThread.start();
 
 		FetchThread fetcherThread = new FetchThread(this);
 		fetcherThread.setName("Fetcher");
