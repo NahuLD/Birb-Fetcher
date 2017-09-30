@@ -109,6 +109,7 @@ public class RedditFetcher {
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 			fetcherThread.interrupt();
 			fetcherThread.getSlaves().forEach(Thread::interrupt);
+			poolingThread.interrupt();
 			Spark.stop();
 		}));
 	}
