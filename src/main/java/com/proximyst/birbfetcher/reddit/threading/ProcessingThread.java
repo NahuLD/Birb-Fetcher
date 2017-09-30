@@ -7,8 +7,8 @@ import com.proximyst.birbfetcher.reddit.api.json.PostData;
 import com.proximyst.birbfetcher.reddit.api.json.PostImage;
 import lombok.RequiredArgsConstructor;
 
-import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 public class ProcessingThread
@@ -33,11 +33,10 @@ public class ProcessingThread
 				continue;
 			}
 
-			Set<String> imageUrls = new HashSet<>();
-			data.getPreview().getImages().stream()
-					.map(PostImage::getSource)
-					.map(ImageSource::getUrl)
-					.forEach(imageUrls::add);
+			final Set<String> imageUrls = data.getPreview().getImages().stream()
+																			.map(PostImage::getSource)
+																			.map(ImageSource::getUrl)
+																			.collect(Collectors.toSet());
 
 			// TODO: Do hashes on pictures and save them.
 		}
