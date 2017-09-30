@@ -2,15 +2,13 @@ package com.proximyst.birbfetcher.reddit.application.rest;
 
 import com.proximyst.birbfetcher.reddit.Utilities;
 import com.proximyst.birbfetcher.reddit.application.Configuration;
-import com.sun.xml.internal.messaging.saaj.util.ByteOutputStream;
 import lombok.RequiredArgsConstructor;
 import spark.Request;
 import spark.Response;
 import spark.Route;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 public class GetImageById
@@ -35,18 +33,7 @@ public class GetImageById
 			}
 		}
 		File id = new File(directory, filename);
-		ByteOutputStream stream = new ByteOutputStream();
-		try(FileInputStream reader = new FileInputStream(id)) {
-			byte[] buffer = new byte[1024];
-			int length;
-			while ((length = reader.read(buffer)) > 0) {
-				stream.write(buffer, 0, length);
-			}
-		} catch (IOException e) {
-			Utilities.println("Couldn't read file \"" + id + "\"!");
-			e.printStackTrace();
-			return null;
-		}
-		return stream.getBytes();
+		final Optional<byte[]> bytes = Utilities.readImage(id);
+		return bytes.orElse(null);
 	}
 }

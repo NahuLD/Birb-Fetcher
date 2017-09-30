@@ -12,7 +12,6 @@ public class GetImageId implements Route {
 
 	@Override
 	public Object handle(Request request, Response response) {
-		// TODO: Get random image ID in plain text format.
-		return null;
+		return pool.poll().getName();
 	}
 }

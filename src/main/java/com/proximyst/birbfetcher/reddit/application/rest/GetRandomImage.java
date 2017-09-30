@@ -1,5 +1,6 @@
 package com.proximyst.birbfetcher.reddit.application.rest;
 
+import com.proximyst.birbfetcher.reddit.Utilities;
 import com.proximyst.birbfetcher.reddit.application.FilePool;
 import lombok.RequiredArgsConstructor;
 import spark.Request;
@@ -12,7 +13,6 @@ public class GetRandomImage implements Route {
 
 	@Override
 	public Object handle(Request request, Response response) {
-		// TODO: Handle random image (GET /id/text, return GET /img/:id)
-		return null;
+		return Utilities.readImage(pool.poll()).orElse(null);
 	}
 }
