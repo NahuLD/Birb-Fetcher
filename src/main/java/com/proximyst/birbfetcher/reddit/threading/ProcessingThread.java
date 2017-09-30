@@ -17,6 +17,8 @@ import java.util.AbstractMap;
 import java.util.Map;
 import java.util.Objects;
 
+import static com.proximyst.birbfetcher.reddit.Utilities.println;
+
 @RequiredArgsConstructor
 public class ProcessingThread
 			extends Thread {
@@ -36,11 +38,12 @@ public class ProcessingThread
 	@Override
 	public void run() {
 		if (digest == null) {
+			stopping();
 			return;
 		}
 		File directory = new File(fetcher.getConfiguration().getBirbDirectory());
 		Post post;
-		while ((post = master.getBirbPosts().poll()) != null) {
+		while (!isInterrupted() && (post = master.getBirbPosts().poll()) != null) {
 			if (post.getData() == null) { // Shouldn't ever, but it may at some point.
 				continue;
 			}
@@ -78,14 +81,14 @@ public class ProcessingThread
 						} catch (IOException | ClassCastException e) {
 							return null;
 						}
-						return outputStream.toByteArray();
+						return new Pair<>(outputStream.toByteArray(), in.substring(in.lastIndexOf('.'), in.indexOf('?')));
 					})
 //					.filter(Objects::nonNull) - Doing it in the next map is more efficient.
 						.<Map.Entry<String, Pair<byte[], File>>>map(in -> {
-							if (in == null || in.length <= 0) {
+							if (in == null || in.getA().length <= 0) {
 								return null;
 							}
-							byte[] sig = digest.digest(in);
+							byte[] sig = digest.digest(in.getA());
 							StringBuilder builder = new StringBuilder();
 							for (byte digestedByte : sig) {
 								builder.append(Integer.toString(
@@ -95,7 +98,7 @@ public class ProcessingThread
 									break;
 								}
 							}
-							String digest = builder.toString();
+							String digest = builder.toString() + '.' + in.getB();
 							File file = new File(directory, digest);
 							if (file.exists()) { // Chances for duplicate signatures of which pow(62, 16) match are really low.
 								return null; // pretty safe to say it's the same image.
@@ -108,7 +111,7 @@ public class ProcessingThread
 								e.printStackTrace(); // Should never happen in prod, so let's see what the error is.
 								return null;
 							}
-							return new AbstractMap.SimpleImmutableEntry<>(digest, new Pair<>(in, file));
+							return new AbstractMap.SimpleImmutableEntry<>(digest, new Pair<>(in.getA(), file));
 						})
 						.filter(Objects::nonNull) // An error or duplicate occurred. Drop them.
 						.filter(entry -> !master.getFiles().containsKey(entry.getKey()))
@@ -117,12 +120,18 @@ public class ProcessingThread
 								stream.write(entry.getValue().getA());
 							} catch (IOException ignored) {
 								try {
-									entry.getValue().getB().delete(); // Corrupt file after this stage.
+									println("Deleting corrupt file \"" + entry.getValue().getB().getName() + "\":",
+													entry.getValue().getB().delete());// Corrupt file after this stage.
 								} catch (SecurityException ex) {
 									ex.printStackTrace(); // Prod should have permissions setup correctly..
 								}
 							}
 						});
+			stopping();
 		}
+	}
+
+	private void stopping() {
+		master.getSlaves().remove(this);
 	}
 }

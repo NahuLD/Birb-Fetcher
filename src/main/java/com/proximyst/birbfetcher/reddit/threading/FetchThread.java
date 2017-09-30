@@ -10,9 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -21,7 +19,7 @@ public class FetchThread
 			extends Thread {
 	private final RedditFetcher fetcher;
 	@Getter private final Queue<Post> birbPosts = new LinkedBlockingQueue<>();
-	@Getter private final Queue<ProcessingThread> slaves = new LinkedBlockingQueue<>();
+	@Getter private final Set<ProcessingThread> slaves = new HashSet<>();
 	@Getter @Setter private Map<String, String> files = new HashMap<>();
 
 	@Override
@@ -46,7 +44,8 @@ public class FetchThread
 			for (int i = 0; i < fetcher.getConfiguration().getThreads(); ) {
 				ProcessingThread thread = new ProcessingThread(fetcher, this);
 				thread.setName("ProcessingSlave-" + thread.getId());
-				if (slaves.offer(thread)) {
+				thread.setDaemon(false);
+				if (slaves.add(thread)) {
 					i++; // Only increase when threads have been properly made.
 					thread.start();
 				}
