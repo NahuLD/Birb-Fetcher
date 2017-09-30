@@ -2,6 +2,7 @@ package com.proximyst.birbfetcher.reddit.threading;
 
 import com.proximyst.birbfetcher.reddit.RedditFetcher;
 import com.proximyst.birbfetcher.reddit.api.json.Post;
+import com.proximyst.birbfetcher.reddit.api.json.PostData;
 import lombok.RequiredArgsConstructor;
 
 import java.util.HashMap;
@@ -37,12 +38,18 @@ public class ProcessingThread
 			if (post.getData() == null) { // Shouldn't ever, but it may at some point.
 				continue;
 			}
-			String domain = post.getData().getDomain();
+			PostData data = post.getData();
+			if (data.isHidden()
+						|| data.isQuarantine()) {
+				continue;
+			}
+
+			String domain = data.getDomain();
 			final Function<String, String> urlFunction = urls.get(domain);
 			if (urlFunction == null) {
 				continue; // Only allow certain URLs to save a few risks.
 			}
-			String url = urlFunction.apply(post.getData().getUrl());
+			String url = urlFunction.apply(data.getUrl());
 			if (url == null) {
 				continue; // An error must've occurred to return null, or it is unsupported.
 			}
