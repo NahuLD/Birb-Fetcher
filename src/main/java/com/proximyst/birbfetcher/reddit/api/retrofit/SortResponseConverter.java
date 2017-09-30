@@ -9,7 +9,8 @@ import java.io.IOException;
 public class SortResponseConverter
 			implements Converter<ResponseBody, Sort> {
 	@Override
-	public Sort convert(ResponseBody value) throws IOException {
+	public Sort convert(ResponseBody value)
+				throws IOException {
 		return value.string().toLowerCase().charAt(0) == 'n' ? Sort.NEW : Sort.RISING;
 	}
 }

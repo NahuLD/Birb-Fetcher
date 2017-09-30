@@ -29,14 +29,18 @@ public class RedditFetcher {
 				.serializeNulls()
 				.create();
 	private final Queue<Post> posts = new LinkedBlockingQueue<>();
-	private Configuration configuration = null;
 	private final File configurationFile = new File('.' + File.separatorChar + "config.json");
+	private Configuration configuration = null;
+
+	public static void main(String[] args) {
+		new RedditFetcher().run();
+	}
 
 	private void run() {
 		Utilities.println("Starting to instantiate core elements.");
 
 		if (configurationFile.exists()) {
-			try(FileReader reader = new FileReader(configurationFile)) {
+			try (FileReader reader = new FileReader(configurationFile)) {
 				configuration = gson.fromJson(reader, Configuration.class);
 			} catch (IOException e) {
 				Utilities.println("Couldn't read config.");
@@ -59,9 +63,5 @@ public class RedditFetcher {
 		fetcherThread.setDaemon(false);
 		Utilities.println("Starting fetcher thread:", fetcherThread.getName(), '(' + fetcherThread.getId() + ')');
 		fetcherThread.start();
-	}
-
-	public static void main(String[] args) {
-		new RedditFetcher().run();
 	}
 }
