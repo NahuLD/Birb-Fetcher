@@ -10,7 +10,7 @@ version '1.0-SNAPSHOT'
 
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = sourceCompatibility
-mainClassName = 'com.proximyst.birbfetcher.Fetcher'
+mainClassName = 'com.proximyst.birbfetcher.reddit.RedditFetcher'
 
 repositories {
   mavenCentral()
