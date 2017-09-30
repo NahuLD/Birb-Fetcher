@@ -1,0 +1,33 @@
+plugins {
+  id 'java'
+  id 'io.franzbecker.gradle-lombok' version '1.10'
+  id 'idea'
+  id 'application'
+  id 'com.github.johnrengelman.shadow' version '2.0.1'
+}
+group 'com.proximyst'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = sourceCompatibility
+mainClassName = 'com.proximyst.birbfetcher.Fetcher'
+
+repositories {
+  mavenCentral()
+  jcenter()
+}
+
+dependencies {
+  compile 'com.squareup.retrofit2:retrofit:2.3.0'
+  compile 'com.google.code.gson:gson:2.8.2'
+
+  testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+
+jar {
+  manifest {
+    attributes(
+        'Main-Class': mainClassName
+    )
+  }
+}
