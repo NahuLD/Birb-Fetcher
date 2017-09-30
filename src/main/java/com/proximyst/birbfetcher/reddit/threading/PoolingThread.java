@@ -25,13 +25,16 @@ public class PoolingThread
 	@Override
 	public void run() {
 		int size = fileQueue.size();
-		if (size < capacity) {
-			File directory = new File(config.getBirbDirectory());
-			File[] children = directory.listFiles();
-			if (children != null) {
-				for (int i = 0; i < (capacity - size); i++) {
-					fileQueue.offer(children[ThreadLocalRandom.current().nextInt(children.length)]);
-				}
+		if (size >= capacity) {
+			for (int i = 0; i < Math.ceil(size / 10); i++) {
+				fileQueue.poll();
+			}
+		}
+		File directory = new File(config.getBirbDirectory());
+		File[] children = directory.listFiles();
+		if (children != null) {
+			for (int i = 0; i < (capacity - size); i++) {
+				fileQueue.offer(children[ThreadLocalRandom.current().nextInt(children.length)]);
 			}
 		}
 		try {
