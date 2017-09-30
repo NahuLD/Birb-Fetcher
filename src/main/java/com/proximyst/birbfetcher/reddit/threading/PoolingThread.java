@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.io.File;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
@@ -26,13 +25,13 @@ public class PoolingThread
 	@Override
 	public void run() {
 		int size = fileQueue.size();
-		if (size >= capacity) {
-			Iterator<File> iter = fileQueue.iterator();
-			for (int i = 0; i < Math.ceil(size / 10); i++) {
-				iter.remove();
-				iter.next();
-			}
-		}
+//		if (size >= capacity) {
+//			Iterator<File> iter = fileQueue.iterator();
+//			for (int i = 0; i < Math.ceil(size / 10); i++) {
+//				iter.remove();
+//				iter.next();
+//			}
+//		}
 		File directory = new File(config.getBirbDirectory());
 		File[] children = directory.listFiles();
 		if (children != null) {
