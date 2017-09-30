@@ -20,7 +20,7 @@ public class PoolingThread
 
 	private final Configuration config;
 	private final FilePool pool;
-	@Getter private final Set<File> fileQueue = new LinkedHashSet<>(capacity);
+	@Getter private final Set<File> fileQueue = new LinkedHashSet<>(capacity, 0);
 
 	@Override
 	public void run() {
