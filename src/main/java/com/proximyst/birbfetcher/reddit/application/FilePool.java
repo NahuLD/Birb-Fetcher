@@ -1,17 +1,19 @@
 package com.proximyst.birbfetcher.reddit.application;
 
+import com.proximyst.birbfetcher.reddit.threading.PoolingThread;
 import lombok.RequiredArgsConstructor;
 
 import java.io.File;
-import java.util.Queue;
-import java.util.concurrent.LinkedBlockingQueue;
 
 @RequiredArgsConstructor
 public class FilePool {
-	private final Queue<String> internalQueue = new LinkedBlockingQueue<>();
-	private final Configuration config;
+	private final PoolingThread poolingThread;
 
 	public File poll() {
-		return null;
+		File file;
+		do {
+			file = poolingThread.getFileQueue().poll();
+		} while (file == null);
+		return file;
 	}
 }

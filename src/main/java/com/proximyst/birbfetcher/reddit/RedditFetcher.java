@@ -70,14 +70,14 @@ public class RedditFetcher {
 			configuration.setBirbDirectory('.' + File.separatorChar + "birbs");
 			configuration.setPort(4500);
 		}
-		println("Instantiating file pool.");
-		filePool = new FilePool(configuration);
 		println("Instantiating pooling thread.");
 		PoolingThread poolingThread = new PoolingThread(configuration, filePool);
 		poolingThread.setName("Pooler");
 		poolingThread.setDaemon(false);
 		println("Starting pooling thread:", poolingThread.getName(), '(' + poolingThread.getId() + ')');
 		poolingThread.start();
+		println("Instantiating file pool.");
+		filePool = new FilePool(poolingThread);
 
 		FetchThread fetcherThread = new FetchThread(this);
 		fetcherThread.setName("Fetcher");
