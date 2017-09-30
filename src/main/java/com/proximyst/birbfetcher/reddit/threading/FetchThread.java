@@ -3,6 +3,7 @@ package com.proximyst.birbfetcher.reddit.threading;
 import com.proximyst.birbfetcher.reddit.RedditFetcher;
 import com.proximyst.birbfetcher.reddit.Utilities;
 import com.proximyst.birbfetcher.reddit.api.Sort;
+import com.proximyst.birbfetcher.reddit.api.json.NewJson;
 import com.proximyst.birbfetcher.reddit.api.json.Post;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -21,11 +22,16 @@ public class FetchThread
 
 	@Override
 	public void run() {
-		// TODO: Fetch from Reddit subs.
 		for (String subreddit : fetcher.getConfiguration().getSubreddits()) {
 			try {
 				// TODO: Do both new RISING and NEW Sorts to have more posts and be able to poll highest liked.
 				String json = fetcher.getRedditApi().newPosts(subreddit, Sort.RISING).clone().execute().body();
+				NewJson newPosts = fetcher.getGson().fromJson(json, NewJson.class);
+				// Safety in case Reddit returns null for some reason.
+				if (newPosts.getData() != null
+							&& newPosts.getData().getChildren() != null) {
+					newPosts.getData().getChildren().parallelStream().forEach(birbPosts::offer);
+				}
 			} catch (IOException e) {
 				Utilities.println("Couldn't read reddit API for subreddit \"" + subreddit + "\"!");
 				e.printStackTrace();

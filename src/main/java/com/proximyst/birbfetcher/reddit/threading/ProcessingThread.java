@@ -33,6 +33,7 @@ public class ProcessingThread
 				continue;
 			}
 
+			// Image URLs from ImageSource are always https://i.redditmedia.com
 			final Set<String> imageUrls = data.getPreview().getImages().stream()
 																			.map(PostImage::getSource)
 																			.map(ImageSource::getUrl)
