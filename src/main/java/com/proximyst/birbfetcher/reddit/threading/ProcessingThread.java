@@ -42,6 +42,9 @@ public class ProcessingThread
 			return;
 		}
 		File directory = new File(fetcher.getConfiguration().getBirbDirectory());
+		if (!directory.isDirectory()) {
+			directory.mkdirs();
+		}
 		Post post;
 		while (!isInterrupted() && (post = master.getBirbPosts().poll()) != null) {
 			if (post.getData() == null) { // Shouldn't ever, but it may at some point.
@@ -52,8 +55,10 @@ public class ProcessingThread
 						|| data.isQuarantine() // Might be infected or such. mods decide this
 						|| (data.getBanned_by() != null // If the user is banned we don't want the image.
 						&& !data.getBanned_by().equals("")) // Make sure they were actually banned
-						|| !data.getPost_hint().equalsIgnoreCase("image") // Make sure it's an image
+						|| (data.getPost_hint() != null // Make sure post hint isn't null
+						&& !data.getPost_hint().equalsIgnoreCase("image")) // Make sure it's an image
 						|| !data.getSubreddit_type().equalsIgnoreCase("public") // Make sure it's public
+						|| data.getPreview() == null
 						|| (data.getPreview().getImages() == null
 						|| data.getPreview().getImages().size() <= 0)) {
 				continue;
@@ -98,7 +103,7 @@ public class ProcessingThread
 									break;
 								}
 							}
-							String digest = builder.toString() + '.' + in.getB();
+							String digest = builder.toString() + in.getB();
 							File file = new File(directory, digest);
 							if (file.exists()) { // Chances for duplicate signatures of which pow(62, 16) match are really low.
 								return null; // pretty safe to say it's the same image.
@@ -120,8 +125,10 @@ public class ProcessingThread
 								stream.write(entry.getValue().getA());
 							} catch (IOException ignored) {
 								try {
-									println("Deleting corrupt file \"" + entry.getValue().getB().getName() + "\":",
-													entry.getValue().getB().delete());// Corrupt file after this stage.
+									println(
+												"Deleting corrupt file \"" + entry.getValue().getB().getName() + "\":",
+												entry.getValue().getB().delete()
+									);// Corrupt file after this stage.
 								} catch (SecurityException ex) {
 									ex.printStackTrace(); // Prod should have permissions setup correctly..
 								}

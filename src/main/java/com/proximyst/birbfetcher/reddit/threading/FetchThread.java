@@ -2,7 +2,6 @@ package com.proximyst.birbfetcher.reddit.threading;
 
 import com.proximyst.birbfetcher.reddit.RedditFetcher;
 import com.proximyst.birbfetcher.reddit.Utilities;
-import com.proximyst.birbfetcher.reddit.api.Sort;
 import com.proximyst.birbfetcher.reddit.api.json.NewJson;
 import com.proximyst.birbfetcher.reddit.api.json.Post;
 import lombok.Getter;
@@ -27,7 +26,11 @@ public class FetchThread
 		for (String subreddit : fetcher.getConfiguration().getSubreddits()) {
 			try {
 				// TODO: Do both new RISING and NEW Sorts to have more posts and be able to poll highest liked.
-				String json = fetcher.getRedditApi().newPosts(subreddit, Sort.RISING).clone().execute().body();
+				String json = fetcher.getRedditApi()
+														 .newPosts(subreddit, "rising")
+														 .clone()
+														 .execute()
+														 .body().string();
 				NewJson newPosts = fetcher.getGson().fromJson(json, NewJson.class);
 				// Safety in case Reddit returns null for some reason.
 				if (newPosts.getData() != null

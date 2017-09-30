@@ -30,9 +30,7 @@ public enum Utilities {
 			while ((length = reader.read(buffer)) > 0) {
 				stream.write(buffer, 0, length);
 			}
-		} catch (IOException e) {
-			Utilities.println("Couldn't read file \"" + file.getName() + "\"!");
-			e.printStackTrace();
+		} catch (IOException ignored) {
 			return Optional.empty();
 		}
 		return Optional.ofNullable(stream.toByteArray());
@@ -43,7 +41,7 @@ public enum Utilities {
 	}
 
 	public static String getContentType(String name) {
-		switch (name.toLowerCase()) {
+		switch ((name.indexOf('.') == 0 ? name.substring(1) : name).toLowerCase()) {
 			case "png":
 				return "image/png";
 			case "jpg":
@@ -63,7 +61,7 @@ public enum Utilities {
 			case "mkv":
 				return "video/webm";
 			default:
-				throw new IllegalArgumentException("Unsupported type!");
+				throw new IllegalArgumentException("Unsupported type! (" + name + ')');
 		}
 	}
 }

@@ -7,8 +7,7 @@ import spark.Request;
 import spark.Response;
 import spark.Route;
 
-import java.io.File;
-import java.util.Optional;
+import java.io.*;
 
 @RequiredArgsConstructor
 public class GetImageById
@@ -32,9 +31,22 @@ public class GetImageById
 				filename = filename.substring(filename.lastIndexOf('/'));
 			}
 		}
-		File id = new File(directory, filename);
-		final Optional<byte[]> bytes = Utilities.readImage(id);
-		bytes.ifPresent(b -> response.header("Content-Type", Utilities.getContentType(id) + "; charset=utf-8"));
-		return bytes.orElse(null);
+		File file = new File(directory, filename);
+		if (!file.exists()) {
+			return "No image found";
+		}
+		response.type(Utilities.getContentType(file));
+		response.status(200);
+		try(OutputStream outputStream = response.raw().getOutputStream();
+				InputStream input = new FileInputStream(file)) {
+			byte[] buffer = new byte[1024];
+			int length;
+			while ((length = input.read(buffer)) >= 0) {
+				outputStream.write(buffer, 0, length);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return "";
 	}
 }

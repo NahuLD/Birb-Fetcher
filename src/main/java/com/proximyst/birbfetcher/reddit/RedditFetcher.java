@@ -5,7 +5,6 @@ import com.google.gson.GsonBuilder;
 import com.proximyst.birbfetcher.reddit.api.RedditAPI;
 import com.proximyst.birbfetcher.reddit.api.json.Post;
 import com.proximyst.birbfetcher.reddit.api.retrofit.EnumStringConverterFactory;
-import com.proximyst.birbfetcher.reddit.api.retrofit.SortConverterFactory;
 import com.proximyst.birbfetcher.reddit.application.Configuration;
 import com.proximyst.birbfetcher.reddit.application.FilePool;
 import com.proximyst.birbfetcher.reddit.application.rest.GetImageById;
@@ -20,6 +19,7 @@ import spark.Spark;
 
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,7 +33,6 @@ import static com.proximyst.birbfetcher.reddit.Utilities.println;
 public class RedditFetcher {
 	private final Retrofit retrofit = new Retrofit.Builder()
 				.baseUrl("https://reddit.com")
-				.addConverterFactory(new SortConverterFactory())
 				.addConverterFactory(new EnumStringConverterFactory())
 				.build();
 	private final RedditAPI redditApi = getRetrofit().create(RedditAPI.class);
@@ -71,7 +70,7 @@ public class RedditFetcher {
 			configuration.setSubreddits(new ArrayList<>());
 			configuration.getSubreddits().addAll(Arrays.asList("parrots", "birbs", "birb"));
 			configuration.setThreads(16); // TODO: Find out if it's too much or too little. I think 8 or 4 might be enough.
-			configuration.setBirbDirectory('.' + File.separatorChar + "birbs");
+			configuration.setBirbDirectory('.' + File.separator + "birbs");
 			configuration.setPort(4500);
 		}
 		println("Instantiating pooling thread.");
@@ -115,6 +114,15 @@ public class RedditFetcher {
 			fetcherThread.getSlaves().forEach(Thread::interrupt);
 			poolingThread.interrupt();
 			Spark.stop();
+			try {
+				configurationFile.createNewFile();
+			} catch (IOException ignored) {
+			}
+			try (FileWriter writer = new FileWriter(configurationFile)) {
+				gson.toJson(configuration, writer);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}));
 	}
 }
