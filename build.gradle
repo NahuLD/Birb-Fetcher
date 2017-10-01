@@ -10,7 +10,7 @@ version '1.0-SNAPSHOT'
 
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = sourceCompatibility
-mainClassName = 'com.proximyst.birbfetcher.reddit.RedditFetcher'
+mainClassName = 'com.proximyst.birbfetcher.Fetcher'
 
 repositories {
   mavenCentral()
@@ -20,6 +20,7 @@ repositories {
 dependencies {
   compile 'com.squareup.retrofit2:retrofit:2.3.0'
   compile 'com.google.code.gson:gson:2.8.2'
+  compile 'com.squareup.retrofit2:converter-gson:2.3.0'
   compile 'com.sparkjava:spark-core:2.6.0'
 
   compile 'org.slf4j:slf4j-api:1.7.25'

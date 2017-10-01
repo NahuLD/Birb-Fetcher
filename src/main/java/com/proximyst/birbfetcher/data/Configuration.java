@@ -1,4 +1,4 @@
-package com.proximyst.birbfetcher.reddit.application;
+package com.proximyst.birbfetcher.data;
 
 import lombok.Data;
 
