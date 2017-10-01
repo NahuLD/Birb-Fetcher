@@ -85,6 +85,11 @@ public class Fetcher {
 			config.setThreads(16);
 			config.setBirbDirectory('.' + File.separator + "birbs");
 			config.setPort(4500);
+			config.setUseJks(false);
+			config.setJksName("keystore.jks");
+			config.setJksPass("password");
+			config.setTrustName("truststore.jks");
+			config.setTrustPass("trustpassword");
 			saveConfig();
 		}
 		println("Finished getting config!");
@@ -106,6 +111,15 @@ public class Fetcher {
 
 		println("Instantiating and pathing the Spark RESTful API...");
 		{
+			if (config.isUseJks()) {
+				Spark.secure(
+							config.getJksName(),
+							config.getJksPass(),
+							config.getTrustName(),
+							config.getTrustPass()
+				);
+			}
+
 			Spark.port(config.getPort());
 			final RandomBase64 randomBase64 = new RandomBase64(fileQueueThread);
 			final RandomImage randomImage = new RandomImage(fileQueueThread);
@@ -165,7 +179,10 @@ public class Fetcher {
 										"/random",
 										"/random/image"
 							);
-							Spark.get("/:id", imageById);
+							Spark.get(
+										"/:id",
+										imageById
+							);
 							Spark.get(
 										"/:id/image",
 										imageById

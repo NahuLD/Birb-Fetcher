@@ -10,4 +10,9 @@ public class Configuration {
 	private int threads;
 	private String birbDirectory;
 	private int port;
+	private boolean useJks;
+	private String jksName;
+	private String jksPass;
+	private String trustName;
+	private String trustPass;
 }
