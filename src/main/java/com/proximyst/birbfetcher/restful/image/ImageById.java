@@ -10,6 +10,8 @@ import spark.Route;
 import java.io.File;
 import java.util.Optional;
 
+import static com.proximyst.birbfetcher.Utilities.println;
+
 @RequiredArgsConstructor
 public class ImageById
 			implements Route {
@@ -20,7 +22,7 @@ public class ImageById
 				Request request,
 				Response response
 	) {
-		String id = request.params(":id");
+		String id = request.params("id");
 		if (id == null || id.equals("")) {
 			response.status(400);
 			return null;
@@ -32,6 +34,7 @@ public class ImageById
 		}
 		File directory = new File(config.getBirbDirectory());
 		if (!directory.isDirectory()) {
+			println("Directory wasn't found!");
 			response.status(500);
 			return null;
 		}

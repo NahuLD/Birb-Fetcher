@@ -21,7 +21,7 @@ public class Base64ById
 				Request request,
 				Response response
 	) {
-		String id = request.params(":id");
+		String id = request.params("id");
 		if (id == null || id.equals("")) {
 			response.status(400);
 			return null;

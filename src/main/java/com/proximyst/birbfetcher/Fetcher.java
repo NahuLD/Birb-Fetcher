@@ -165,10 +165,7 @@ public class Fetcher {
 										"/random",
 										"/random/image"
 							);
-							Spark.redirect.get(
-										"/:id",
-										"/image/:id/image"
-							);
+							Spark.get("/:id", imageById);
 							Spark.get(
 										"/:id/image",
 										imageById
