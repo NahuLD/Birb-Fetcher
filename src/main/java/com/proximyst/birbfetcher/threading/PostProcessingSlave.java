@@ -9,6 +9,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Objects;
+import java.util.Set;
 
 import static com.proximyst.birbfetcher.Utilities.println;
 
@@ -16,6 +18,7 @@ import static com.proximyst.birbfetcher.Utilities.println;
 public class PostProcessingSlave
 			extends Thread {
 	private final PostFetchingThread master;
+	private final Set<String> blacklist;
 	private final File directory;
 
 	@Override
@@ -58,6 +61,9 @@ public class PostProcessingSlave
 						byte[] fileData = pair.getB();
 						byte[] digest = Utilities.getSignature(fileData);
 						String filename = Utilities.getFileName(digest) + '.' + extension;
+						if (blacklist.contains(filename)) {
+							return null;
+						}
 						File file = new File(
 									directory,
 									filename
@@ -67,6 +73,7 @@ public class PostProcessingSlave
 									fileData
 						);
 					})
+					.filter(Objects::nonNull)
 					.filter(pair -> !pair.getA().exists())
 					.forEach(pair -> {
 						try (OutputStream stream = new FileOutputStream(pair.getA())) {

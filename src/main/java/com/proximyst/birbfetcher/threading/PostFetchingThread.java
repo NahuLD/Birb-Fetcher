@@ -57,6 +57,7 @@ public class PostFetchingThread
 					)
 					.mapToObj(i -> new PostProcessingSlave(
 								this,
+								fetcher.getBlacklist(),
 								directory
 					))
 					.filter(this::daemon)

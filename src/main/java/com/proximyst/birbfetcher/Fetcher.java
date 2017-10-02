@@ -24,7 +24,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import spark.Spark;
 
 import java.io.*;
-import java.util.Arrays;
+import java.util.*;
 
 import static com.proximyst.birbfetcher.Utilities.println;
 
@@ -32,6 +32,8 @@ import static com.proximyst.birbfetcher.Utilities.println;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Fetcher {
 	private static final File configFile = new File('.' + File.separator + "config.json");
+	private static final File blacklistFile = new File('.' + File.separator + "blacklist.json");
+	private Set<String> blacklist = new HashSet<>();
 	private Gson gson;
 	private Retrofit retrofit;
 	private RedditAPI redditApi;
@@ -93,6 +95,25 @@ public class Fetcher {
 			saveConfig();
 		}
 		println("Finished getting config!");
+
+		println("Reading/instantiating blacklist...");
+		if (blacklistFile.exists()) {
+			try(Reader reader = new FileReader(blacklistFile)) {
+				@SuppressWarnings("unchecked")
+				List<String> blacklisted = gson.fromJson(
+							reader,
+							ArrayList.class
+				);
+				blacklist = new HashSet<>(blacklisted);
+			} catch (IOException e) {
+				println("Couldn't read blacklist!");
+				e.printStackTrace();
+				if (!blacklistFile.delete()) {
+					println("Couldn't delete corrupt blacklist!");
+				}
+			}
+		}
+		println("Done getting blacklist!");
 
 		println("Instantiating and starting threads...");
 		fileVerificationThread = new FileVerificationThread(this);
@@ -211,6 +232,16 @@ public class Fetcher {
 				);
 			} catch (IOException e) {
 				println("Couldn't save config!");
+				e.printStackTrace();
+			}
+			blacklistFile.delete();
+			try (Writer writer = new FileWriter(blacklistFile)) {
+				gson.toJson(
+							new ArrayList<>(blacklist),
+							writer
+				);
+			} catch (IOException e) {
+				println("Couldn't save blacklist!");
 				e.printStackTrace();
 			}
 			Spark.stop();
