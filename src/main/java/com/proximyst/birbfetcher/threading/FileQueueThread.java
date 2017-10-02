@@ -5,8 +5,10 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.io.File;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
+import java.util.HashSet;
+import java.util.Queue;
+import java.util.Set;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static com.proximyst.birbfetcher.Utilities.println;
@@ -52,34 +54,37 @@ public class FileQueueThread
 		}
 	}
 
-	public class FileQueue
-				extends LinkedHashSet<File> {
-		@Override
+	public class FileQueue {
+		private final Set<File> files = new HashSet<>();
+		private final Queue<File> fileQueue = new LinkedBlockingQueue<>();
+
 		public boolean add(File file) {
-			if (capacity <= size()) {
+			if (capacity <= files.size()) {
 				return false;
 			}
-			return super.add(file);
+			if (files.add(file) && !fileQueue.offer(file)) {
+				files.remove(file);
+			}
+			return files.contains(file);
+		}
+
+		public int size() {
+			return files.size();
 		}
 
 		public synchronized File getFile() {
-			while (size() <= 0) {
+			while (files.size() <= 0) {
 				// Wait for item.
 			}
-			Iterator<File> iter = iterator();
-			if (!iter.hasNext()) {
-				// Shouldn't ever be fired, but it may.
+			File file = fileQueue.poll();
+			if (file == null) {
 				return getFile();
 			}
-			File file = iter.next();
-			if (!file.exists()) { // Might be queued but removed by the verification
-				return getFile();
-			}
-			try {
+			files.remove(file);
+			if (file.exists()) {
 				return file;
-			} finally {
-				iter.remove();
 			}
+			return getFile();
 		}
 	}
 }

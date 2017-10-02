@@ -37,6 +37,9 @@ public class FileVerificationThread
 		}
 		Map<String, byte[]> fileData = new HashMap<>();
 		for (File file : files) {
+			if (isInterrupted()) {
+				break; // Just write the files we know are verified
+			}
 			byte[] readFile = Utilities.readFile(file);
 			if (readFile.length == 0) {
 				continue;
