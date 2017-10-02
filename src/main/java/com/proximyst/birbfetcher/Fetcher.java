@@ -25,6 +25,7 @@ import spark.Spark;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import static com.proximyst.birbfetcher.Utilities.println;
 
@@ -38,6 +39,7 @@ public class Fetcher {
 	private Retrofit retrofit;
 	private RedditAPI redditApi;
 	private Configuration config = null;
+	private Timer timer;
 	private FileVerificationThread fileVerificationThread;
 	private FileQueueThread fileQueueThread;
 	private PostFetchingThread fetchingThread;
@@ -98,7 +100,7 @@ public class Fetcher {
 
 		println("Reading/instantiating blacklist...");
 		if (blacklistFile.exists()) {
-			try(Reader reader = new FileReader(blacklistFile)) {
+			try (Reader reader = new FileReader(blacklistFile)) {
 				@SuppressWarnings("unchecked")
 				List<String> blacklisted = gson.fromJson(
 							reader,
@@ -116,18 +118,25 @@ public class Fetcher {
 		println("Done getting blacklist!");
 
 		println("Instantiating and starting threads...");
+		timer = new Timer();
 		fileVerificationThread = new FileVerificationThread(this);
-		fileVerificationThread.setName("Verificator");
-		fileVerificationThread.setDaemon(false);
 		fileQueueThread = new FileQueueThread(this);
-		fileQueueThread.setName("FilePooler");
-		fileQueueThread.setDaemon(false);
 		fetchingThread = new PostFetchingThread(this);
-		fetchingThread.setName("Fetcher");
-		fetchingThread.setDaemon(false);
-		fileVerificationThread.start();
-		fileQueueThread.start();
-		fetchingThread.start();
+		timer.scheduleAtFixedRate(
+					fileVerificationThread,
+					0,
+					TimeUnit.MINUTES.toMillis(15)
+		);
+		timer.scheduleAtFixedRate(
+					fileQueueThread,
+					0,
+					TimeUnit.SECONDS.toMillis(5)
+		);
+		timer.scheduleAtFixedRate(
+					fetchingThread,
+					0,
+					TimeUnit.MINUTES.toMillis(10)
+		);
 		println("Finished instantiating and starting threads!");
 
 		println("Instantiating and pathing the Spark RESTful API...");
@@ -220,10 +229,8 @@ public class Fetcher {
 		println("Finished instantiating and pathing the Spark RESTful API!");
 
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-			fileVerificationThread.interrupt();
+			timer.cancel();
 			fetchingThread.getSlaves().forEach(Thread::interrupt);
-			fetchingThread.interrupt();
-			fileQueueThread.interrupt();
 			configFile.delete();
 			try (Writer writer = new FileWriter(configFile)) {
 				gson.toJson(

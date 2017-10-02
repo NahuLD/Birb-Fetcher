@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Queue;
 import java.util.Set;
+import java.util.TimerTask;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.IntStream;
 
@@ -19,7 +20,7 @@ import static com.proximyst.birbfetcher.Utilities.println;
 
 @RequiredArgsConstructor
 public class PostFetchingThread
-			extends Thread {
+			extends TimerTask {
 	@Getter private final Queue<Post> postQueue = new LinkedBlockingQueue<>();
 	@Getter private final Set<PostProcessingSlave> slaves = new HashSet<>();
 	private final Fetcher fetcher;

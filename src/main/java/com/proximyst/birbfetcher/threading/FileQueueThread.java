@@ -8,14 +8,13 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.Queue;
 import java.util.Set;
+import java.util.TimerTask;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadLocalRandom;
 
-import static com.proximyst.birbfetcher.Utilities.println;
-
 @RequiredArgsConstructor
 public class FileQueueThread
-			extends Thread {
+			extends TimerTask {
 	private static final int capacity = 64; // Only 64 images will be 100% determined to be non dupe.
 	@Getter private final FileQueue queue = new FileQueue();
 	private final Fetcher fetcher;
@@ -24,33 +23,17 @@ public class FileQueueThread
 	public void run() {
 		File directory = new File(fetcher.getConfig().getBirbDirectory());
 		if (!directory.isDirectory()) {
-			if (!rerun()) {
-				run();
-			}
 			return;
 		}
 		File[] files = directory.listFiles();
 		if (files == null || files.length == 0) {
-			if (!rerun()) {
-				run();
-			}
 			return;
 		}
-		while (queue.size() < capacity) {
+		while (queue.size() < Math.min(
+					capacity,
+					files.length
+		)) {
 			queue.add(files[ThreadLocalRandom.current().nextInt(files.length)]);
-		}
-		if (!rerun()) {
-			run();
-		}
-	}
-
-	private boolean rerun() {
-		try {
-			sleep(2000);
-			return false;
-		} catch (InterruptedException e) {
-			println("Interrupted! Stopping thread...");
-			return true;
 		}
 	}
 
